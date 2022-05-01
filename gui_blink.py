@@ -6,20 +6,24 @@ import time
 import RPi.GPIO as GPIO
 
 #sets the on/off switch for voltage
-ON = GPIO.LOW
-OFF = GPIO.HIGH
+ON = GPIO.HIGH
+OFF = GPIO.LOW
 
-#put LED pins in an array
-PINR = 11
-PINB = 13
-PING = 15
-PINS = [PINR, PINB, PING]
+def setPins():
+	PINR = 11
+	PINB = 13
+	PING = 15
+	PINS = [PINR, PINB, PING]
+	return PINS
 
 #initialize GPIO and set pins to output mode
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(PINR, GPIO.OUT)
-GPIO.setup(PINB, GPIO.OUT)
-GPIO.setup(PING, GPIO.OUT)
+def GPIOSetup():
+    
+	GPIO.setmode(GPIO.BOARD)
+	
+	for i in PINS:
+		GPIO.setup(i, GPIO.OUT)
+
 
 #create a custom window
 class MyWindow(QMainWindow):
@@ -30,10 +34,9 @@ class MyWindow(QMainWindow):
 		self.initUI()
 		
 	def initUI(self):
-		self.pins = [PINR, PINB, PING]
-		self.rB = MyButton(self, QtWidgets.QRadioButton, "Red LED", 100, 10, LEDClicker(PINR))
-		self.bB = MyButton(self, QtWidgets.QRadioButton, "Blue LED", 100, 50, LEDClicker(PINB))
-		self.gB = MyButton(self, QtWidgets.QRadioButton, "Green LED", 100, 90, LEDClicker(PING))
+		self.rB = MyButton(self, QtWidgets.QRadioButton, "Red LED", 100, 10, LEDClicker(PINS[0]))
+		self.bB = MyButton(self, QtWidgets.QRadioButton, "Blue LED", 100, 50, LEDClicker(PINS[1]))
+		self.gB = MyButton(self, QtWidgets.QRadioButton, "Green LED", 100, 90, LEDClicker(PINS[2]))
 		self.eB = MyButton(self, QtWidgets.QPushButton, "Exit", 100, 130, self.close)
 		
 	def closeEvent(self, event):
@@ -89,11 +92,14 @@ def window():
 	
 	win.show()
 	sys.exit(app.exec_())
+	
 
 #shutdown procedure to turn all pins off
 def turnOff():
     for pin in PINS:
         GPIO.output(pin, OFF)
 
+PINS = setPins()
+GPIOSetup()
 turnOff()
 window()
